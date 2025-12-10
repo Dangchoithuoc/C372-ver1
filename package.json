@@ -1,0 +1,25 @@
+{
+  "name": "c372-fa-bookstore",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dangchoithuoc/C372-FA-Bookstore.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dangchoithuoc/C372-FA-Bookstore/issues"
+  },
+  "homepage": "https://github.com/Dangchoithuoc/C372-FA-Bookstore#readme",
+  "description": "",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2"
+  }
+}

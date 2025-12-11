@@ -13,10 +13,13 @@
       <nav>
         <a href="#staff-picks">Staff Picks</a>
         <a href="#shelves">Shelves</a>
-        <a href="/checkout">Checkout</a>
-        <a href="/login">Login</a>
+        <a href="/cart">Cart</a>
+        <% if (user) { %>
+          <a href="/logout">Logout</a>
+        <% } else { %>
+          <a href="/login">Login</a>
+        <% } %>
       </nav>
-      <button class="cta" onclick="location.href='/add-test-cart'">Sample cart</button>
     </div>
   </header>
 
@@ -32,7 +35,13 @@
         <p class="price">$<%= spotlight.price.toFixed(2) %></p>
         <p><%= spotlight.tagline %></p>
         <p class="muted"><%= spotlight.description %></p>
-        <button class="cta" onclick="location.href='/checkout'">Reserve a copy</button>
+        <form method="POST" action="/cart/add" style="display:flex; gap:10px; align-items:center;">
+          <input type="hidden" name="bookId" value="<%= spotlight.id || '' %>">
+          <input type="hidden" name="title" value="<%= spotlight.title %>">
+          <input type="hidden" name="price" value="<%= spotlight.price %>">
+          <button class="cta" type="submit">Add to cart</button>
+          <button class="cta" type="button" onclick="location.href='/cart'">View cart</button>
+        </form>
       </div>
       <div class="cover">
         <h3><%= spotlight.title %></h3>
@@ -54,7 +63,12 @@
             <p class="muted"><%= book.vibe %></p>
             <div class="row">
               <span><strong>$<%= book.price.toFixed(2) %></strong></span>
-              <button class="cta" onclick="location.href='/checkout'">Add</button>
+              <form method="POST" action="/cart/add" style="margin:0; display:flex; gap:6px;">
+                <input type="hidden" name="bookId" value="<%= book.id || '' %>">
+                <input type="hidden" name="title" value="<%= book.title %>">
+                <input type="hidden" name="price" value="<%= book.price %>">
+                <button class="cta" type="submit">Add</button>
+              </form>
             </div>
           </article>
         <% }); %>
@@ -68,11 +82,7 @@
       </div>
       <div class="shelves">
         <% shelves.forEach(function(shelf) { %>
-          <article class="shelf" style="--accent: <%= shelf.accent || '#f3f4f6' %>;">
-            <strong><%= shelf.label %></strong>
-            <small><%= shelf.blurb %></small>
-            <a class="tag" href="/checkout">See picks</a>
-          </article>
+          <article class="shelf" style="--accent: <%= shelf.accent || '#f3f4f6' %>;"><strong><%= shelf.label %></strong><small><%= shelf.blurb %></small><a class="tag" href="/cart">See picks</a></article>
         <% }); %>
       </div>
     </section>

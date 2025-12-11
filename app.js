@@ -24,6 +24,24 @@ app.use(session({
 const CheckoutController = require("./controllers/CheckoutController");
 const BookController = require("./controllers/BookController");
 const UserController = require("./controllers/UserController");
+const CartController = require("./controllers/CartController");
+
+// Middleware to require items in cart before checkout
+function requireCartItems(req, res, next) {
+    const cart = req.session.cart || [];
+    if (!cart.length) {
+        return res.redirect("/cart");
+    }
+    next();
+}
+
+// Middleware to require login before cart actions
+function requireLogin(req, res, next) {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    }
+    next();
+}
 
 // Homepage
 app.get("/", BookController.homePage);
@@ -35,35 +53,16 @@ app.get("/register", UserController.registerPage);
 app.post("/register", UserController.register);
 app.get("/logout", UserController.logout);
 
-// TEMP test cart to simulate items
-app.get("/add-test-cart", (req, res) => {
-    req.session.cart = [
-        { title: "Sample Book 1", price: 5.50, qty: 1 },
-        { title: "Python Guide", price: 12.00, qty: 2 }
-    ];
+// Cart routes (login required)
+app.get("/cart", requireLogin, CartController.viewCart);
+app.post("/cart/add", requireLogin, CartController.addItem);
+app.post("/cart/update", requireLogin, CartController.updateItem);
+app.post("/cart/remove", requireLogin, CartController.removeItem);
+app.post("/cart/clear", requireLogin, CartController.clearCart);
 
-    let total = 0;
-    req.session.cart.forEach(item => {
-        total += item.price * item.qty;
-    });
-
-    res.send(`
-        <h2>Test Cart Added!</h2>
-        <p>Your temporary cart data has been created:</p>
-        <ul>
-            <li>Sample Book 1 - $5.50 A- 1 = $5.50</li>
-            <li>Python Guide - $12.00 A- 2 = $24.00</li>
-        </ul>
-        <p><strong>Total: $${total.toFixed(2)}</strong></p>
-        <p><strong>Next:</strong> <a href="/checkout">Proceed to Checkout</a></p>
-    `);
-});
-
-
-
-// Checkout routes
-app.get("/checkout", CheckoutController.checkoutPage);
-app.post("/checkout/pay", CheckoutController.processPayment);
+// Checkout routes (login + cart required)
+app.get("/checkout", requireLogin, requireCartItems, CheckoutController.checkoutPage);
+app.post("/checkout/pay", requireLogin, requireCartItems, CheckoutController.processPayment);
 
 // Server listening at bottom
 app.listen(3000, () => {

@@ -39,5 +39,13 @@ module.exports = {
             blurb: `${row.count} titles ready to browse`,
             accent: ["#fff7ed", "#e0f2fe", "#f3e8ff", "#ecfeff"][idx % 4]
         }));
+    },
+
+    async findById(id) {
+        const [rows] = await pool.execute(
+            "SELECT id, title, author, price, vibe, badge FROM books WHERE id = ? LIMIT 1",
+            [id]
+        );
+        return rows[0] || null;
     }
 };

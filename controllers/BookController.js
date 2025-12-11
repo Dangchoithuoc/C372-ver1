@@ -35,7 +35,8 @@ module.exports = {
             res.render("home", {
                 spotlight: resolvedSpotlight,
                 staffPicks: resolvedStaff,
-                shelves: resolvedShelves
+                shelves: resolvedShelves,
+                user: req.session.user || null
             });
         } catch (err) {
             console.error("Error loading homepage:", err);

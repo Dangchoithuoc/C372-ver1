@@ -8,41 +8,60 @@ Student ID: 24030289
 Class: C372-003
 Date created: 10 December 2025
 -->
+<link rel="stylesheet" href="/css/styles.css">
 
-<h2 style="text-align:center; margin-top: 20px;">Checkout</h2>
+<div class="checkout-shell">
 
-<div style="display:flex; justify-content:center; gap:60px; margin-top:30px;">
+    <h2 class="checkout-title">Checkout</h2>
 
-  <!-- Delivery Section -->
-  <div>
-    <h3>Delivery options</h3>
-    <button>Ship</button>
-    <button>Pick up</button>
+    <div class="checkout-columns">
 
-    <h3 style="margin-top:20px;">Contact Information</h3>
+        <!-- Delivery + Contact Info -->
+        <div class="checkout-section">
+            <h3>Delivery Options</h3>
+            <button>Ship</button>
+            <button style="margin-left: 8px;">Pick up</button>
 
-    <form method="POST" action="/checkout/next">
-      <input type="text" name="first_name" placeholder="First name" required>
-      <input type="text" name="last_name" placeholder="Last name" required><br><br>
-      <input type="email" name="email" placeholder="Email" required><br><br>
-      <input type="text" name="contact" placeholder="Contact number" required><br><br>
+            <h3 style="margin-top: 20px;">Contact Information</h3>
 
-      <button type="submit">Save & Continue</button>
-    </form>
-  </div>
+            <form method="POST" action="/checkout/pay">
+                <input type="text" name="first_name" placeholder="First name" required>
+                <input type="text" name="last_name" placeholder="Last name" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="text" name="contact" placeholder="Contact number" required>
 
-  <!-- Payment Method Section -->
-  <div>
-    <h3>Payment Method</h3>
+                <button type="submit">Proceed to Payment</button>
+            </form>
+        </div>
 
-    <button>ADD CREDIT / DEBIT CARD</button><br><br>
-    <p style="text-align:center;">or</p>
-    <button>PayNow</button><br><br>
-    <button>GrabPay</button><br><br>
-    <button>PayLah!</button><br><br>
+        <!-- Order Summary + Payment Method -->
+        <div class="checkout-section">
+            <h3>Order Summary</h3>
 
-    <p><strong>Total: $<%= total %></strong></p>
-  </div>
+            <table style="width:100%; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <th style="text-align:left; padding-bottom: 8px;">Book</th>
+                    <th>Qty</th>
+                    <th style="text-align:right;">Subtotal</th>
+                </tr>
 
+                <% cart.forEach(item => { %>
+                <tr>
+                    <td><%= item.title %></td>
+                    <td style="text-align:center;"><%= item.qty %></td>
+                    <td style="text-align:right;">$<%= (item.price * item.qty).toFixed(2) %></td>
+                </tr>
+                <% }) %>
+            </table>
+
+            <p class="checkout-total">Total: $<%= total %></p>
+
+            <h3 style="margin-top: 20px;">Payment Method</h3>
+            <button>Credit / Debit Card</button><br><br>
+            <button>PayNow</button><br><br>
+            <button>GrabPay</button><br><br>
+            <button>PayLah!</button><br><br>
+        </div>
+
+    </div>
 </div>
-

@@ -8,41 +8,51 @@ Student ID: 24030289
 Class: C372-003
 Date created: 10 December 2025
 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="checkout-shell">
+    <h2 class="checkout-title">Checkout</h2>
 
-<h2 style="text-align:center; margin-top: 20px;">Checkout</h2>
+    <div class="checkout-columns">
+      <!-- Delivery Section -->
+      <div class="checkout-section">
+        <h3>Delivery options</h3>
+        <button>Ship</button>
+        <button>Pick up</button>
 
-<div style="display:flex; justify-content:center; gap:60px; margin-top:30px;">
+        <h3>Contact Information</h3>
 
-  <!-- Delivery Section -->
-  <div>
-    <h3>Delivery options</h3>
-    <button>Ship</button>
-    <button>Pick up</button>
+        <form method="POST" action="/checkout/next">
+          <input type="text" name="first_name" placeholder="First name" required>
+          <input type="text" name="last_name" placeholder="Last name" required>
+          <input type="email" name="email" placeholder="Email" required>
+          <input type="text" name="contact" placeholder="Contact number" required>
 
-    <h3 style="margin-top:20px;">Contact Information</h3>
+          <button type="submit">Save & Continue</button>
+        </form>
+      </div>
 
-    <form method="POST" action="/checkout/next">
-      <input type="text" name="first_name" placeholder="First name" required>
-      <input type="text" name="last_name" placeholder="Last name" required><br><br>
-      <input type="email" name="email" placeholder="Email" required><br><br>
-      <input type="text" name="contact" placeholder="Contact number" required><br><br>
+      <!-- Payment Method Section -->
+      <div class="checkout-section">
+        <h3>Payment Method</h3>
 
-      <button type="submit">Save & Continue</button>
-    </form>
+        <button>ADD CREDIT / DEBIT CARD</button><br><br>
+        <p class="muted center">or</p>
+        <button>PayNow</button><br><br>
+        <button>GrabPay</button><br><br>
+        <button>PayLah!</button><br><br>
+
+        <p class="checkout-total">Total: $<%= total %></p>
+      </div>
+
+    </div>
   </div>
-
-  <!-- Payment Method Section -->
-  <div>
-    <h3>Payment Method</h3>
-
-    <button>ADD CREDIT / DEBIT CARD</button><br><br>
-    <p style="text-align:center;">or</p>
-    <button>PayNow</button><br><br>
-    <button>GrabPay</button><br><br>
-    <button>PayLah!</button><br><br>
-
-    <p><strong>Total: $<%= total %></strong></p>
-  </div>
-
-</div>
-
+</body>
+</html>

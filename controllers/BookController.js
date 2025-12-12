@@ -53,6 +53,7 @@ function normalizePrice(value) {
 function normalizeSpotlight(item) {
     if (!item) return null;
     return {
+        id: item.id,
         title: item.title,
         author: item.author,
         tagline: item.tagline,
@@ -65,6 +66,7 @@ function normalizeSpotlight(item) {
 function normalizeStaff(list) {
     if (!list || list.length === 0) return null;
     return list.map(b => ({
+        id: b.id,
         title: b.title,
         author: b.author,
         price: normalizePrice(b.price),

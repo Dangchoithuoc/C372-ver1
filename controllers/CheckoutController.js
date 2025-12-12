@@ -1,25 +1,31 @@
-// Basic checkout simulation (no database yet)
+const Cart = require("../models/Cart");
 
+// Basic checkout simulation (uses DB-backed cart)
 module.exports = {
 
-    checkoutPage: (req, res) => {
-        const cart = req.session.cart || [];
-        let total = 0;
-
-        cart.forEach(item => {
-            total += item.price * item.qty;
-        });
-
-        // Send BOTH cart and total to the view
-        res.render("checkout", { 
-            cart: cart,
-            total: total.toFixed(2)
-        });
+    checkoutPage: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            const { items, total } = await Cart.getCart(userId);
+            res.render("checkout", {
+                cart: items,
+                total: total.toFixed(2)
+            });
+        } catch (err) {
+            console.error("Checkout load error", err);
+            res.status(500).send("Failed to load checkout");
+        }
     },
 
-    processPayment: (req, res) => {
-        // Future: connect to real payment API
-        req.session.cart = []; // clear cart after simulation
-        res.send("Payment processed successfully! (Simulated)");
+    processPayment: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            // Future: connect to real payment API
+            await Cart.clearCart(userId);
+            res.send("Payment processed successfully! (Simulated)");
+        } catch (err) {
+            console.error("Payment error", err);
+            res.status(500).send("Payment failed");
+        }
     }
 };

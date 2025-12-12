@@ -1,6 +1,6 @@
 const User = require("../models/User");
 
-// User controller now uses MySQL-backed User model (passwords stored in password_hash column).
+// User controller now uses MySQL-backed User model (passwords stored in user_password column).
 module.exports = {
     loginPage: (req, res) => {
         res.render("login", { error: null });
@@ -21,7 +21,7 @@ module.exports = {
                 return res.render("register", { error: "Email already registered. Try logging in." });
             }
             const created = await User.create({ name, email, password });
-            req.session.user = { id: created.id, name: created.name, email: created.email };
+            req.session.user = { id: created.id, name: created.name, email: created.email, role: created.role || "buyer" };
             res.redirect("/");
         } catch (err) {
             console.error("Register error", err);
@@ -36,7 +36,7 @@ module.exports = {
             if (!user || user.password_hash !== password) {
                 return res.render("login", { error: "Invalid email or password." });
             }
-            req.session.user = { id: user.id, name: user.name, email: user.email };
+            req.session.user = { id: user.id, name: user.username, email: user.email, role: user.role || "buyer" };
             res.redirect("/");
         } catch (err) {
             console.error("Login error", err);

@@ -1,46 +1,27 @@
 const Book = require("../models/Book");
-
-function ensureCart(req) {
-    if (!req.session.cart) req.session.cart = [];
-    return req.session.cart;
-}
-
-function calcTotal(cart) {
-    return cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.qty) || 0), 0);
-}
+const Cart = require("../models/Cart");
 
 module.exports = {
-    viewCart: (req, res) => {
-        const cart = ensureCart(req);
-        const total = calcTotal(cart);
-        res.render("cart", { cart, total: total.toFixed(2) });
+    viewCart: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            const { items, total } = await Cart.getCart(userId);
+            res.render("cart", { cart: items, total: total.toFixed(2), user: req.session.user });
+        } catch (err) {
+            console.error("View cart error", err);
+            res.status(500).send("Could not load cart");
+        }
     },
 
     addItem: async (req, res) => {
         try {
-            const { bookId, title, price, qty } = req.body;
-            const cart = ensureCart(req);
-            let book = null;
-            if (bookId) {
-                book = await Book.findById(bookId);
+            const userId = req.session.user.id;
+            const { bookId, qty } = req.body;
+            const book = await Book.findById(bookId);
+            if (!book) {
+                return res.status(404).send("Book not found");
             }
-            const resolvedTitle = (book && book.title) || title || "Book";
-            const resolvedPrice = Number((book && book.price) || price || 0);
-            const resolvedId = book ? book.id : bookId || resolvedTitle;
-            const resolvedQty = Math.max(1, Number(qty) || 1);
-
-            const existing = cart.find(i => String(i.id) === String(resolvedId));
-            if (existing) {
-                existing.qty += resolvedQty;
-            } else {
-                cart.push({
-                    id: resolvedId,
-                    title: resolvedTitle,
-                    price: resolvedPrice,
-                    qty: resolvedQty,
-                    badge: book && book.badge ? book.badge : ""
-                });
-            }
+            await Cart.addItem(userId, book.id, qty);
             res.redirect("/cart");
         } catch (err) {
             console.error("Add to cart error", err);
@@ -48,30 +29,38 @@ module.exports = {
         }
     },
 
-    updateItem: (req, res) => {
-        const { id, qty } = req.body;
-        const cart = ensureCart(req);
-        const item = cart.find(i => String(i.id) === String(id));
-        if (item) {
-            const newQty = Number(qty);
-            if (!Number.isFinite(newQty) || newQty <= 0) {
-                req.session.cart = cart.filter(i => String(i.id) !== String(id));
-            } else {
-                item.qty = newQty;
-            }
+    updateItem: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            const { id, qty } = req.body;
+            await Cart.updateItem(userId, id, qty);
+            res.redirect("/cart");
+        } catch (err) {
+            console.error("Update cart error", err);
+            res.status(500).send("Could not update cart");
         }
-        res.redirect("/cart");
     },
 
-    removeItem: (req, res) => {
-        const { id } = req.body;
-        const cart = ensureCart(req);
-        req.session.cart = cart.filter(i => String(i.id) !== String(id));
-        res.redirect("/cart");
+    removeItem: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            const { id } = req.body;
+            await Cart.removeItem(userId, id);
+            res.redirect("/cart");
+        } catch (err) {
+            console.error("Remove cart item error", err);
+            res.status(500).send("Could not remove item");
+        }
     },
 
-    clearCart: (req, res) => {
-        req.session.cart = [];
-        res.redirect("/cart");
+    clearCart: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            await Cart.clearCart(userId);
+            res.redirect("/cart");
+        } catch (err) {
+            console.error("Clear cart error", err);
+            res.status(500).send("Could not clear cart");
+        }
     }
 };

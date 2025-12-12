@@ -12,8 +12,11 @@
       <div class="brand">The Bookmark</div>
       <nav>
         <a href="/">Home</a>
-        <a href="/login">Login</a>
-        <a href="/checkout">Checkout</a>
+        <% if (user) { %>
+          <a href="/logout">Logout</a>
+        <% } else { %>
+          <a href="/login">Login</a>
+        <% } %>
       </nav>
       <form action="/cart/clear" method="POST" style="margin:0;">
         <button class="cta" type="submit">Clear cart</button>
@@ -39,7 +42,6 @@
           <% cart.forEach(function(item) { %>
             <div>
               <div><%= item.title %></div>
-              <% if (item.badge) { %><span class="tag"><%= item.badge %></span><% } %>
             </div>
             <div class="center">$<%= Number(item.price || 0).toFixed(2) %></div>
             <div class="center">

@@ -3,12 +3,13 @@ const pool = require("../db");
 module.exports = {
     async getFeatured() {
         const [rows] = await pool.execute(
-            "SELECT id, title, author, price, vibe AS tagline, badge FROM books WHERE is_featured = 1 ORDER BY id DESC LIMIT 1"
+            "SELECT book_id AS id, title, author, price, genre AS tagline FROM books ORDER BY book_id ASC LIMIT 1"
         );
         const featured = rows[0];
         if (!featured) return null;
         return {
             ...featured,
+            badge: featured.tagline || "Featured",
             description: featured.tagline || "A new arrival waiting on the front table."
         };
     },
@@ -16,7 +17,7 @@ module.exports = {
     async getStaffPicks(limit = 6) {
         const safeLimit = Number.isFinite(Number(limit)) ? Number(limit) : 6;
         const [rows] = await pool.query(
-            `SELECT id, title, author, price, vibe, badge FROM books WHERE is_featured = 0 ORDER BY created_at DESC LIMIT ${safeLimit}`
+            `SELECT book_id AS id, title, author, price, genre AS vibe FROM books ORDER BY book_id DESC LIMIT ${safeLimit}`
         );
         return rows;
     },
@@ -24,7 +25,7 @@ module.exports = {
     async getShelves() {
         // A lightweight derived list using counts; fallback to labels if empty
         const [rows] = await pool.execute(
-            "SELECT badge AS label, COUNT(*) AS count FROM books GROUP BY badge ORDER BY count DESC"
+            "SELECT COALESCE(genre, 'General') AS label, COUNT(*) AS count FROM books GROUP BY COALESCE(genre, 'General') ORDER BY count DESC"
         );
         if (rows.length === 0) {
             return [
@@ -43,7 +44,7 @@ module.exports = {
 
     async findById(id) {
         const [rows] = await pool.execute(
-            "SELECT id, title, author, price, vibe, badge FROM books WHERE id = ? LIMIT 1",
+            "SELECT book_id AS id, title, author, price, genre AS vibe FROM books WHERE book_id = ? LIMIT 1",
             [id]
         );
         return rows[0] || null;
